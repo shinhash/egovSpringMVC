@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.or.ddit.springmvc.dao.BoardMapper">
+
+
+
+	<select id="boardList" parameterType="kr.or.ddit.springmvc.board.BoardVO" resultType="kr.or.ddit.springmvc.board.BoardVO">
+		SELECT BOARD_SN, 
+			   TITLE, 
+			   CONTENTS, 
+   			   WRITER, 
+   			   USER_PASSWORD, 
+   			   OPEN_YN
+		  FROM TB_BOARD
+	</select>
+	
+	
+	
+
+
+
+	<insert id="insertBoard">
+		<selectKey keyProperty="boardSn" resultType="String" order="BEFORE">
+			select SEQ_BOARD_SN.nextval from dual
+		</selectKey>
+		INSERT INTO TB_BOARD (BOARD_SN, 
+							  TITLE, 
+							  CONTENTS, 
+   							  WRITER, 
+   							  USER_PASSWORD, 
+   							  OPEN_YN) 
+					VALUES (#{boardSn},
+					        #{title},
+					        #{contents},
+					        #{writer},
+					        #{userPassword},
+					        #{openYn})
+	</insert>
+	
+	
+	
+	
+	<update id="updateBoard" parameterType="kr.or.ddit.springmvc.board.BoardVO">
+		UPDATE TB_BOARD
+		SET    TITLE         = #{title},
+		       CONTENTS      = #{contents},
+		       WRITER        = #{writer},
+		       USER_PASSWORD = #{userPassword},
+		       OPEN_YN       = #{openYn}
+		WHERE  BOARD_SN      = #{boardSn}
+	</update>
+	
+	
+	
+	
+	<delete id="deleteBoard"  parameterType="kr.or.ddit.springmvc.board.BoardVO">
+		DELETE TB_BOARD
+		WHERE  BOARD_SN = #{boardSn}
+	</delete>
+	
+	
+	
+	
+	
+	
+	<select id="selectBoardOne" parameterType="kr.or.ddit.springmvc.board.BoardVO" resultType="kr.or.ddit.springmvc.board.BoardVO">
+		SELECT BOARD_SN, 
+			   TITLE, 
+			   CONTENTS, 
+		   	   WRITER, 
+		   	   USER_PASSWORD, 
+		   	   OPEN_YN
+		FROM TB_BOARD
+		WHERE BOARD_SN = #{boardSn}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	<select id="selectBoardList" parameterType="kr.or.ddit.springmvc.board.BoardVO" resultType="kr.or.ddit.springmvc.board.BoardVO">
+		   SELECT A.*
+		   FROM (
+		   SELECT ROWNUM RNUM, S.*
+		   FROM (
+		      SELECT nvl(BOARD_SN, 0) BOARD_SN,
+		            TITLE,
+		            CONTENTS,
+		            WRITER,
+		            USER_PASSWORD,
+		            OPEN_YN
+		      FROM TB_BOARD
+		      <where>
+		         <if test="searchCondition != null and searchCondition != ''">
+		            <choose>
+		               <when test="searchCondition == 0">
+		                  AND TITLE LIKE '%'|| #{searchKeyword}||'%'
+		               </when>
+		               <when test="searchCondition == 1">
+		                  AND TITLE LIKE '%'|| #{searchKeyword}||'%'
+		               </when>
+		            </choose>
+		         </if>
+		      </where>
+		      ORDER BY BOARD_SN DESC
+		      )S
+		      )A
+		      <![CDATA[WHERE RNUM <= #{lastIndex} and RNUM > #{firstIndex}]]>
+	</select>
+	
+	
+	
+	
+	
+	 <select id="selectBoardListTotCnt" resultType="int">
+	   SELECT COUNT(*) totCnt
+	   FROM TB_BOARD
+	   <where>
+	      <if test="searchCondition != null and searchCondition != ''">
+	         <choose>
+	            <when test="searchCondition == 0">
+	               AND TITLE LIKE '%'|| #{searchKeyword}||'%'
+	            </when>
+	            <when test="searchCondition == 1">
+	               AND TITLE LIKE '%'|| #{searchKeyword}||'%'
+	            </when>
+	         </choose>
+	      </if>
+	   </where>
+	</select>
+	
+	
+	
+	
+	
+	
+</mapper>
